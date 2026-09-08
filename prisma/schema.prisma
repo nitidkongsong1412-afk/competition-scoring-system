@@ -1,0 +1,92 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+model AdminConfig {
+  id              Int      @id @default(autoincrement())
+  passwordHash    String   @default("admin1234")
+  competitionName String   @default("การประกวดคลิปสร้างสรรค์ 'เท่อย่างเซียน'")
+  schoolName      String   @default("โรงเรียน")
+  academicYear    String   @default("2569")
+  goldMinScore    Float    @default(80.0)
+  silverMinScore  Float    @default(70.0)
+  bronzeMinScore  Float    @default(60.0)
+  updatedAt       DateTime @updatedAt
+}
+
+model GradeLevel {
+  id          Int         @id @default(autoincrement())
+  name        String
+  shortName   String
+  levelOrder  Int         @default(1)
+  classrooms  Classroom[]
+  judges      Judge[]
+  createdAt   DateTime    @default(now())
+}
+
+model Classroom {
+  id           Int                    @id @default(autoincrement())
+  gradeLevelId Int
+  gradeLevel   GradeLevel             @relation(fields: [gradeLevelId], references: [id], onDelete: Cascade)
+  name         String
+  roomNumber   Int
+  scores       ScoreRecord[]
+  submissions  JudgeClassSubmission[]
+  createdAt    DateTime               @default(now())
+}
+
+model Judge {
+  id           Int                    @id @default(autoincrement())
+  name         String
+  gradeLevelId Int
+  gradeLevel   GradeLevel             @relation(fields: [gradeLevelId], references: [id], onDelete: Cascade)
+  judgeOrder   Int                    @default(1)
+  avatarColor  String                 @default("amber")
+  pinCode      String                 @default("0000")
+  scores       ScoreRecord[]
+  submissions  JudgeClassSubmission[]
+  createdAt    DateTime               @default(now())
+}
+
+model Criterion {
+  id             Int           @id @default(autoincrement())
+  title          String
+  description    String        @default("")
+  maxScore       Int
+  criterionOrder Int           @default(1)
+  scores         ScoreRecord[]
+  createdAt      DateTime      @default(now())
+}
+
+model ScoreRecord {
+  id          Int       @id @default(autoincrement())
+  judgeId     Int
+  judge       Judge     @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  classroomId Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  criterionId Int
+  criterion   Criterion @relation(fields: [criterionId], references: [id], onDelete: Cascade)
+  score       Int       @default(0)
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([judgeId, classroomId, criterionId])
+}
+
+model JudgeClassSubmission {
+  id          Int       @id @default(autoincrement())
+  judgeId     Int
+  judge       Judge     @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  classroomId Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  comment     String    @default("")
+  isCompleted Boolean   @default(false)
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([judgeId, classroomId])
+}

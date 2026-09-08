@@ -1,0 +1,11 @@
+name = "competition-scoring-system"
+compatibility_date = "2024-03-20"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+account_id = "f33fc3eef733106bc2d59ab165137b8d"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "competition-scoring-db"
+database_id = "eb9c10e0-d787-4986-bf77-b5ce8d1c5488"
